@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_frag"
+    app:startDestination="@id/playingRecording">
+
+    <fragment
+        android:id="@+id/playingRecording"
+        android:name="com.proITAssets.myapplication.playingRecording"
+        android:label="fragment_playing_recording"
+        tools:layout="@layout/fragment_playing_recording"
+        app:navGraph="@navigation/nav_frag"
+        app:defaultNavHost="true" />
+</navigation>
