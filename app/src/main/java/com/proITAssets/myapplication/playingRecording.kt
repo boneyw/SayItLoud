@@ -1,8 +1,10 @@
 package com.proITAssets.myapplication
 
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Environment
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +15,8 @@ import kotlinx.android.synthetic.main.fragment_playing_recording.*
 
 
 class playingRecording : Fragment(R.layout.fragment_playing_recording) {
+
+    private var output = Environment.getExternalStorageDirectory().toString() + "/recording.mp3"
 
     var counter = 0
     var time_in_millsec = 0L
@@ -27,26 +31,49 @@ class playingRecording : Fragment(R.layout.fragment_playing_recording) {
 
         // cTimer = view.findViewById(R.id.mTextField)
 
-
-        play?.setOnClickListener {
-            Toast.makeText(context, "this is working", Toast.LENGTH_LONG).show()
-            if (runningtime)
-                pauseTimer()
-            countDown_Timer.cancel()
-
-            val time = mTextField.text.toString()
-            time_in_millsec = time.toLong() * 60000L
-            startTimer(time_in_millsec)
-
-
-        }
-        resetime?.setOnClickListener {
-            resetTheTime()
-        }
+//
+//        play?.setOnClickListener {
+//            val player = MediaPlayer()
+//            player.reset()
+//            player.setDataSource(this.output)
+//            Toast.makeText(context, output, Toast.LENGTH_LONG).show()
+//            Toast.makeText(context, "this is working", Toast.LENGTH_LONG).show()
+//            if (runningtime)
+//                pauseTimer()
+//            countDown_Timer.cancel()
+//
+//
+//            val time = mTextField.text.toString()
+//            time_in_millsec = time.toLong() * 60000L
+//            startTimer(time_in_millsec)
+//            val rnds = (0..10).random()
+//            player.setDataSource(this.output)
+//            Toast.makeText(context, output, Toast.LENGTH_LONG)
+//
+//            while (time_in_millsec.equals(0)) {
+//                var runtime = time.toLong() * rnds
+//                //runtime *= 10000L
+//
+//                if (!player.isPlaying) {
+//                    if (runtime.equals(0)){
+//
+//                        player.prepare()
+//                        player.start()
+//                    }
+//                }
+//            }
+//
+//
+//        }
+//        resetime?.setOnClickListener {
+//            resetTheTime()
+//        }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View? {
         // Inflate the layout for this fragment
 
         return inflater.inflate(R.layout.fragment_playing_recording, container, false)
@@ -56,15 +83,41 @@ class playingRecording : Fragment(R.layout.fragment_playing_recording) {
         super.onViewCreated(view, savedInstanceState)
 
         play.setOnClickListener {
+
+            //This is the  method that work for the app
+            val player = MediaPlayer()
+            player.reset()
+            player.setDataSource(this.output)
+            Toast.makeText(context, output, Toast.LENGTH_LONG).show()
+//            player.prepare()
+//            player.start()
             if (runningtime)
                 countDown_Timer.cancel()
 //                pauseTimer()
 
+
             val time = mTextField.text.toString()
             time_in_millsec = time.toLong() * 60000L
             startTimer(time_in_millsec)
+            val rnds = (0..10).random()
+            var runtime = rnds * 1000L
 
 
+
+            while (time_in_millsec != 0L) {
+                Toast.makeText(context, "$runtime", Toast.LENGTH_SHORT).show()
+                if (!player.isPlaying) {
+
+                    if (runtime == 0L) {
+                        player.prepare()
+                        player.start()
+                    } else {
+                        Toast.makeText(context, "runtime is not 0", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(context, "player is still playing", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
         resetime.setOnClickListener {
             resetTheTime()
@@ -90,7 +143,6 @@ class playingRecording : Fragment(R.layout.fragment_playing_recording) {
 
     private fun startTimer(timeInMillsec: Long) {
         countDown_Timer = object : CountDownTimer(timeInMillsec, 1000) {
-
 
             override fun onTick(p0: Long) {
                 time_in_millsec = p0
