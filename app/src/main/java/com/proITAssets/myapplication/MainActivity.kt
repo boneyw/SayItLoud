@@ -15,6 +15,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+//import androidx.fragment.app.FragmentManager
+//import androidx.fragment.app.FragmentTransaction
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.BufferedWriter
 import java.io.File
@@ -25,8 +27,6 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private var output = Environment.getExternalStorageDirectory().toString() + "/recording.mp3"
-
 
     private lateinit var mediaRecorder: MediaRecorder
     private var state: Boolean = false
@@ -36,41 +36,56 @@ class MainActivity : AppCompatActivity() {
     private var chronometerPausedTime: Long = 0
     private var LOG_TAG = "AudioRecordTest"
 
-    private val thename by lazy { findViewById<TextView>(R.id.ed_name) }
+
+    val thename by lazy { findViewById<TextView>(R.id.ed_name) }
+
+    private val output by lazy {
+        Environment.getExternalStorageDirectory().toString() + "/$thename.mp3"
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        //output = Environment.getExternalStorageDirectory().toString() + "/$thename.mp3"
 
         val play = playingRecording()
         supportFragmentManager.beginTransaction().replace(R.id.fragment_play, play).commit()
         mediaRecorder = MediaRecorder()
 
-
-
         button_stop_recording.isEnabled = false
         button_pause_recording.isEnabled = false
 
         if (ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+        ) {
             val permissions = arrayOf(
-                    android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
             )
             ActivityCompat.requestPermissions(this, permissions, 0)
         }
         button_start_recording.setOnClickListener {
+
+            val bundle = Bundle()
+            bundle.putString("params", thename.toString())
+            // set MyFragment Arguments
+            val myObj = playingRecording()
+            myObj.setArguments(bundle)
+
             if (!thename.text.toString().isNotEmpty()) {
                 Toast.makeText(this, "User need to enter the file name", Toast.LENGTH_SHORT).show()
             } else {
                 if (ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO,
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                        Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    val permissions = arrayOf(Manifest.permission.RECORD_AUDIO,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
                     ActivityCompat.requestPermissions(this, permissions, 0)
 
 
@@ -79,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                     mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
                     mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
                     mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                    mediaRecorder.setOutputFile(output)
+                    mediaRecorder.setOutputFile(output as String)
                 } else {
                     startRecording()
                     button_stop_recording.isEnabled = true
@@ -110,8 +125,8 @@ class MainActivity : AppCompatActivity() {
         var name = File(getExternalFilesDir("/"), recordingfile)
 
         val timestamp = SimpleDateFormat(
-                "MM/dd/yyyy_HH:mm:ss:a",
-                Locale.US,
+            "MM/dd/yyyy_HH:mm:ss:a",
+            Locale.US,
         ).format(System.currentTimeMillis())
         val date = Date()
         //recordingfile = " ${ed_name.text} " + timestamp.format(date) + ".mp3"
@@ -121,7 +136,7 @@ class MainActivity : AppCompatActivity() {
                 //Toast.makeText(this, "This is your file name $recordingfile", Toast.LENGTH_SHORT).show()
 
                 //output = "${externalCacheDir?.absolutePath}/audiorecordtest.mp3"
-                mediaRecorder.setOutputFile(output)
+                mediaRecorder.setOutputFile(output as String)
                 Toast.makeText(this, "Recording started! $output", Toast.LENGTH_SHORT).show()
                 mediaRecorder.prepare()
                 mediaRecorder.start()
@@ -186,10 +201,10 @@ class MainActivity : AppCompatActivity() {
 
         val player = MediaPlayer()
         player.reset()
-        player.setDataSource(this.output)
+        player.setDataSource(this.output as String)
         player.prepare()
         player.start()
-        Toast.makeText(this, output, Toast.LENGTH_LONG).show()
+        Toast.makeText(this, output as String, Toast.LENGTH_LONG).show()
 
 
 //        try{
@@ -210,12 +225,12 @@ class MainActivity : AppCompatActivity() {
 
         val name = "rec_$thename.mp3"
         val timestamp = SimpleDateFormat("MMddyyyy_HHmmss",
-                Locale.getDefault()).format(System.currentTimeMillis())
+            Locale.getDefault()).format(System.currentTimeMillis())
 
         try {
             val rec = File("$output/Recording/")
             mediaRecorder = MediaRecorder()
-            output = Environment.getExternalStorageDirectory().toString() + "/$thename.mp3"
+
 
             val file = File(name)
             val fw = FileWriter(file.absoluteFile)
